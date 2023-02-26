@@ -34,8 +34,14 @@ app.post('/userSignUp', async (req, res) => {
             const db = await client.db('Pujari_JCB_Spares')
             let user = await db.collection('User Registration').findOne({ email: req.body.email })
             if (!user) {
-                await db.collection('User Registration').insertOne(req.body)
-                res.status(201).send({ message: 'User Registartion Successful', data: req.body })
+                let username = await db.collection('User Registration').findOne({ username: req.body.username })
+                if (!username) {
+                    await db.collection('User Registration').insertOne(req.body)
+                    res.status(201).send({ message: 'User Registartion Successful', data: req.body })
+                }
+                else {
+                    res.status(400).send({ message: `User with username ${req.body.username} already exist` })
+                }
             }
             else {
                 res.status(400).send({ message: `User with ${req.body.email} already exist` })
@@ -48,6 +54,9 @@ app.post('/userSignUp', async (req, res) => {
     catch (error) {
         console.log(error);
         res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
     }
 })
 
