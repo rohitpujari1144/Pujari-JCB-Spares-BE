@@ -14,7 +14,7 @@ app.get('/', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Pujari_JCB_Spares')
-        let allUsers = await db.collection('User Registration').find().project({ password: 0 }).toArray()
+        let allUsers = await db.collection('User Registration').find().toArray()
         res.status(200).send(allUsers)
     }
     catch (error) {
