@@ -60,6 +60,38 @@ app.post('/userSignUp', async (req, res) => {
     }
 })
 
+// editing user information
+app.put('/updateUser/:email', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        if (req.params.email) {
+            const db = await client.db('Pujari_JCB_Spares')
+            let user = await db.collection('User Registration').findOne({ email: req.params.email })
+            if (user) {
+                if (req.body.mobile && req.body.address && req.body.occupation) {
+                    let user = await db.collection('User Registration').updateOne({ email: req.params.email }, { $set: req.body })
+                    res.status(200).send({ message: 'User info updated successfully' })
+                }
+                else {
+                    res.status().send({ message: 'mobile, address and occupation are mandatory' })
+                }
+            }
+            else {
+                res.status(400).send({ message: `User not found with email ${req.params.email}` })
+            }
+        }
+        else {
+            res.status(400).send({ message: 'email is mandatory' })
+        }
+    }
+    catch (error) {
+        res.status(400).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // user login
 app.get('/userLogin/:username/:password', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
